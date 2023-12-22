@@ -1,0 +1,46 @@
+・aptアップグレード
+sudo apt-get update
+
+・aptフルアップグレード
+sudo apt full-upgrade -y
+
+・mariadbをインストール
+sudo apt install mariadb-server
+
+・mariadbに初期ログイン
+sudo mysql -u root -p
+初期pw：mysql
+
+・アカウント作成
+CREATE USER ユーザー名 IDENTIFIED BY 'パスワード';
+ユーザ名：***
+パスワード：***
+
+・ユーザIDができたことの確認
+SELECT User FROM mysql.user;
+
+・mariadbを外部からアクセスできるようにする
+raspi上で以下を実行
+sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
+
+bind-addressの行をコメントアウト
+
+・変更を有効にするためのmariadb再起動
+sudo systemctl restart mariadb.service
+
+・pythonでSQLを扱うためのライブラリインストール
+sudo pip install PyMySQL
+
+・rootで新しいデータベースの作成
+sudo mysql -u root -p
+
+create database equitdb;
+use equitdb;
+grant all on * to ty;
+
+exit
+
+・tyユーザでテーブルを作成
+mysql -u ty -p
+use equitdb;
+create table equittbl(starttime DATETIME,cigarette int,suction int,brand varchar(30));
