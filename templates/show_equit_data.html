@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<title>湯浅君のためのサイト</title>
+</head>
+
+<body>
+<font size="6">安全性と利便性を追求した次世代加熱式タバコ。</font>
+<br>
+<font size="6">禁煙をサポートし、急速充電と喫煙トラッキングで</font>
+<br>
+<font size="6">喫煙者のモチベーションを高める。</font>
+<br>
+<font size="6">喫煙の充実と禁煙への一歩を応援します。</font>
+<br>
+<font size="5">Supports smoking cessation and motivates smokers.</font>
+<br>
+<font size="5">Supports smoking enrichment and a step toward smoking cessation.</font>
+<div style="position:absolute; top:0px; right:0px">
+<img src="images/Yani.png" width="500px" >
+</div>
+<div style="position:absolute; top:500px; left:400px">
+<img src="images/starttime.png" width="100px" ><br>
+
+<table align="center" border="1" id="table1" class="hidden">
+{% for value in equit_data %}
+<tr>
+    <td>{{ value[0] }}</td>
+</tr>
+{% endfor %}
+</table>
+
+</div>
+<div style="position:absolute; top:500px; right:400px">
+<img src="images/brand.png" width="100px" ><br>
+</div>
+<div style="position:absolute; top:800px; left:400px">
+<img src="images/suction.png" width="100px" ><br>
+</div>
+<div style="position:absolute; top:800px; right:400px">
+<img src="images/cigarette.png" width="100px" ><br>
+</div>
+<div style="position:absolute; top:1200px; left:400px">
+<font size="2">Name</font>
+<br>
+<input type="湯浅太貴">
+</div>
+
+
+</body>
+</html>
