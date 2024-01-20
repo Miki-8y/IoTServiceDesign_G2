@@ -29,15 +29,31 @@ def input_data(username,suctiontime_start,suctiontime_end,suction,brand):
         print("DB Access Error...")
 
 # equitdb（データベース）のequittbl（テーブル）の喫煙データを読み込む
+# ログインしているユーザーの喫煙データから最新のレコードを5件取得
 def output_data():
     try:
         with connection.cursor() as cursor:
-            sql = "SELECT * FROM equittbl"
+            sql = "select * from equittbl where username = " + "'" + str(user_name) + "'" + "order by suctiontime_start desc limit 5"
+            # sql = "select * from equittbl"
             cursor.execute(sql)
             result = cursor.fetchall()
     except:
         print("DB Access Error...")
     return result
+
+# equitdb（データベース）のequittbl（テーブル）の喫煙データを読み込む
+# ログインしているユーザの喫煙データから本日分の喫煙回数を計算
+def today_cigarette_data():
+    d_today = datetime.date.today()
+    try:
+        with connection.cursor() as cursor:
+            sql = "select count(*) from equittbl where username = '" + str(user_name) + "' and suctiontime_start like '%" + str(d_today) + "%'"
+            # sql = "select * from equittbl"
+            cursor.execute(sql)
+            today_cigarette = cursor.fetchall()
+    except:
+        print("DB Access Error...")
+    return today_cigarette
 
 @app.route("/", methods=["GET"])
 def login():
@@ -45,12 +61,12 @@ def login():
 
 @app.route("/home", methods=["POST"])
 def home():
-    global username
+    global user_name
     # ユーザー名取得
-    username = request.form["username"]
+    user_name = request.form["username"]
     return render_template("home.html")
 
-@app.route("/inoutput_data", methods=["POST"])
+@app.route("/E-Quit", methods=["POST"])
 def inoutput_data():
     # GPIOピンの設定
     GPIO.setmode(GPIO.BCM)
@@ -68,21 +84,44 @@ def inoutput_data():
     end_time = end_time.replace(microsecond = 0)
     
     # Debug
-    print(suction)
-    print(start_time.replace(microsecond = 0))
-    print(end_time.replace(microsecond = 0))
-    print(decodedText)
+    # print(suction)
+    # print(start_time.replace(microsecond = 0))
+    # print(end_time.replace(microsecond = 0))
+    # print(decodedText)
     
     # テーブルに喫煙データ格納
-    input_data(username,start_time,end_time,suction,decodedText)
+    input_data(user_name,start_time,end_time,suction,decodedText)
     
+    # result = []
     # テーブルから喫煙データ読み込み
     result = output_data()
     
+    s_time_data_list = []
+    e_time_data_list = []
+    suction_data_list = []
+    brand_data_list = []
+    
+    # データ整形
+    for i in range(len(result)):
+        s_time_data_list.append(result[i][1])
+        e_time_data_list.append(result[i][2])
+        suction_data_list.append(result[i][3])
+        brand_data_list.append(result[i][4])
+    
+    # Debug
+    # print(result[0])
+    # print(result[0][1])
+    # print(result[1][1])
+    # print(result[2][1])
+    # print(result[3][1])
+    
     # レコードから，本日の日付と一致するものを参照し，
     # 今日の本数（cigarette）を計算する
+    today_cigarette = today_cigarette_data()
     
-    return render_template("show_equit_data.html", username = username, equit_data = result)
+    print(today_cigarette)
+    
+    return render_template("show_equit_data.html", username = user_name, equitdata_s_time = s_time_data_list, equitdata_e_time = e_time_data_list, equitdata_suction = suction_data_list, equitdata_brand = brand_data_list, equitdata_cigarette = today_cigarette)
 
 connection = pymysql.connect(host="localhost", user="ty", password="ty2024", db="equitdb", charset="utf8")
 
