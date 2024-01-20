@@ -1,23 +1,107 @@
 import pymysql.cursors
 import datetime
-import random
-import socket
 
+# ボタンに関するモジュール
+import RPi.GPIO as GPIO
+import time
+
+# カメラに関するモジュール
 import cv2
 
-# Web表示のためのライブラリ
-from flask import Flask, render_template, request, redirect
+# ボタンの状態とプログラムの状態を追跡する変数
+# 開始ボタン
+start_button_pressed = False
+# 吸引回数ボタン
+suction_button_pressed = False
+program_running = False
+start_time = None
 
-app = Flask(__name__, static_folder='./templates/images')
+# 開始ボタン押下を検出する関数
+def start_button_pressed_callback(chanel):
+    global start_button_pressed
+    start_button_pressed = True
+    
+# 吸引回数ボタン押下を検知する関数
+def suction_button_pressed_callback(chanel):
+    global suction_button_pressed
+    suction_button_pressed = True
 
-# タバコの本数，吸引回数，銘柄取得関数
-def equit():
-    global cigarette, suction, brand
+# GPIOピンの設定
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(20, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(21,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+GPIO.add_event_detect(20, GPIO.FALLING, callback=start_button_pressed_callback, bouncetime=200)
+GPIO.add_event_detect(21, GPIO.FALLING,callback=suction_button_pressed_callback, bouncetime=200)
+
+# 吸引回数，銘柄取得関数
+# def equit():
+#     global suction, brand
+
+# equitdb（データベース）のequittbl（テーブル）に喫煙データを格納
+def input_data(start_time,end_time,suction,brand):
     
-    cigarette=int(1)
-    suction=int(14)
+    #******　ダミーデータ（実際は，ボタンが押されたら実行される）******
+    username = 'こまつ'
+    #**************************************************************
     
-    # カメラのキャプチャを開始
+    # 喫煙開始・終了（年月日時間分）
+    suctiontime_start = start_time
+    suctiontime_end = end_time
+    
+    try:
+        with connection.cursor() as cursor:
+            sql = "INSERT INTO equittbl(username, suctiontime_start, suctiontime_end, suction, brand) VALUES(%s,%s,%s,%s,%s)"
+            cursor.execute(sql,(username,suctiontime_start,suctiontime_end,suction,brand))
+            connection.commit()
+            print("Data commited!")
+    except:
+        print("DB Access Error...")
+        
+connection = pymysql.connect(host="localhost", user="ty", password="ty2024", db="equitdb", charset="utf8")
+
+#main関数
+if __name__ == '__main__':
+    # equit()
+    
+    suction_button_count = 0
+    
+    # **********喫煙開始・終了，吸引回数取得**********
+    try:
+        while True:
+            # 開始ボタンを押下したら
+            if start_button_pressed:
+                start_button_pressed = False
+                if not program_running:
+                    # プログラムを開始し、開始（年月日 時間分）を記録
+                    start_time = datetime.datetime.today()
+                    print("プログラムを開始しました．")
+                    while True:
+                        # 吸引回数ボタンを押下したら
+                        if suction_button_pressed:
+                            suction_button_count += 1
+                            print(suction_button_count)
+                            suction_button_pressed = False
+                        elif start_button_pressed:
+                            # プログラムを終了し、終了（年月日 時間分）を記録
+                            # 経過時間を表示
+                            end_time = datetime.datetime.today()
+                            print("吸引回数測定を終了しました．")
+                            break
+                    program_running = True
+                else:
+                    print("プログラムを終了しました．")
+                    break
+            time.sleep(0.1)
+    except KeyboardInterrupt:
+        print("プログラムが中断されました。")
+    finally:
+        GPIO.cleanup()
+    # **********************************
+    
+    # 吸引回数
+    suction = suction_button_count
+    
+    #*******カメラのキャプチャを開始******
     cap = cv2.VideoCapture(0)
     # QRコード検出用のデコーダーを作成
     qrCodeDetector = cv2.QRCodeDetector()
@@ -37,40 +121,10 @@ def equit():
     cap.release()
     cv2.destroyAllWindows()  # ウィンドウを閉じる
     
+    # 銘柄
     brand=decodedText
+    # ***********************************************
     
-    #if(startendスイッチが押されたら):
-        # cigarette=int(1)
-        # suction=int(14)
-        # brand='テリア リッチ レギュラー'
-        #if(startendスイッチがもう一度押されたら)
-        # break
-
-# equitdb（データベース）のequittbl（テーブル）に喫煙データを格納
-def input_data():
-    # タバコの本数，吸引回数，銘柄
-    global cigarette, suction, brand
-    #id = socket.gethostname()
-    #******　ダミーデータ（実際は，ボタンが押されたら実行される）******
-    suctiontime_start = datetime.datetime.today()
-    suctiontime_end = datetime.datetime.today()
-    #**************************************************************
-    #print('DateTime=%s Cigarette=%d Suction=%d Brand=%s' %(dt,cigarette,suction,brand))
-    
-    try:
-        with connection.cursor() as cursor:
-            sql = "INSERT INTO equittblsub(suctiontime_start, suctiontime_end, cigarette, suction, brand) VALUES(%s,%s,%s,%s,%s)"
-            cursor.execute(sql,(suctiontime_start,suctiontime_end,cigarette,suction,brand))
-            connection.commit()
-            print("Data commited!")
-    except:
-        print("DB Access Error...")
-        
-connection = pymysql.connect(host="localhost", user="ty", password="ty2024", db="equitdb", charset="utf8")
-
-#main関数
-if __name__ == '__main__':
-    equit()
-    input_data()
+    input_data(start_time,end_time,suction,brand)
 
 connection.close()
