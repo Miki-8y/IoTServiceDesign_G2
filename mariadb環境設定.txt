@@ -45,3 +45,9 @@ mysql -u ty -p
 use equitdb;
 【ver3】2024.1.20
 create table equittbl(username varchar(50),suctiontime_start DATETIME,suctiontime_end DATETIME,suction int,brand varchar(100));
+
+・テーブルカラム確認
+SHOW FULL COLUMNS FROM equittbl;
+ 
+・テーブルカラム削除
+DELETE FROM equittbl;
