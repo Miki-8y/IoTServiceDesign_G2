@@ -1,0 +1,24 @@
+・仮想環境構築
+python -m venv 仮想環境名
+例）python -m venv .venv
+
+・仮想環境を立ち上げる
+[Linux・Macの場合]
+. 仮想環境名/bin/activate
+例）. .venv/bin/activate
+[Windowsの場合]
+. 仮想環境名/Scripts/activate
+例）. .venv/Scripts/activate
+
+・ライブラリ出力
+pip freeze > requirements.txt
+
+・ライブラリインストール
+pip install -r requirements.txt
+
+・.venvファイルを.gitignoreに設定（gitに管理されなくなる）
+.gitignoreファイル内に.venvを記述
+
+・すでにgitに管理されてしまっていて，gitに管理されないようにしたい場合は，キャッシュ削除を行う
+git rm -r --cached ファイル名
+例）git rm -r --cached .venv
