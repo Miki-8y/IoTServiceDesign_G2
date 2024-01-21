@@ -16,6 +16,9 @@ pip freeze > requirements.txt
 ・ライブラリインストール
 pip install -r requirements.txt
 
+・ロジクールwebカメラC270n HD 720Pを使うには
+sudo apt-get install fswebvcam
+
 ・.venvファイルを.gitignoreに設定（gitに管理されなくなる）
 .gitignoreファイル内に.venvを記述
 

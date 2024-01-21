@@ -1,0 +1,12 @@
+・python仮想環境設定内で[1]のコマンドを実行するが，エラーになる場合がある．
+[1]pip install -r requirements.txt
+
+・対処法
+[1]のコマンドでインストールされたopencvを削除
+pip uninstall opencv-python
+
+再インストール
+pip install opencv-python
+
+バージョンを指定して再インストール
+例）pip install opencv-python==3.4.5.20
