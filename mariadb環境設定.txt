@@ -43,4 +43,5 @@ exit
 ・tyユーザでテーブルを作成
 mysql -u ty -p
 use equitdb;
-create table equittbl(starttime DATETIME,cigarette int,suction int,brand varchar(30));
+【ver3】2024.1.20
+create table equittbl(username varchar(50),suctiontime_start DATETIME,suctiontime_end DATETIME,suction int,brand varchar(100));
