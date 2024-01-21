@@ -61,13 +61,18 @@ def equit():
         _, frame = cap.read()
         # QRコードの検出とデコード
         decodedText, points, _ = qrCodeDetector.detectAndDecode(frame)
+        print(points)
         if points is not None:
             # QRコードの内容が検出された場合、内容を出力
             print(decodedText)
+            if decodedText == '':
+                decodedText = "None"
             break  # QRコードを読み取ったらループを抜ける
-        # 'q'キーが押されたらループを抜ける
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        else:
+            decodedText = "None"
+        # # 'q'キーが押されたらループを抜ける
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        #     break
     # キャプチャを解放
     cap.release()
     cv2.destroyAllWindows()  # ウィンドウを閉じる
